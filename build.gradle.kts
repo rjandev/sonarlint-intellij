@@ -25,6 +25,7 @@ plugins {
     idea
     signing
     id("de.undercouch.download") version "4.1.2"
+    id("org.cyclonedx.bom") version "1.5.0"
 }
 
 buildscript {
@@ -58,6 +59,7 @@ allprojects {
         plugin("idea")
         plugin("java")
         plugin("org.jetbrains.intellij")
+        plugin("org.cyclonedx.bom")
     }
 
     repositories {
@@ -91,6 +93,16 @@ allprojects {
             apiVersion = "1.3"
             jvmTarget = "11"
         }
+    }
+
+    val bomFile = layout.buildDirectory.file("reports/bom.json")
+    tasks.withType<org.cyclonedx.gradle.CycloneDxTask>().configureEach {
+        outputs.file(bomFile)
+    }
+    artifacts.add("archives", bomFile.get().asFile) {
+        type = "json"
+        classifier = "cyclonedx"
+        builtBy("cyclonedxBom")
     }
 }
 
@@ -287,7 +299,7 @@ tasks {
             copyOmnisharp(destinationDir, pluginName)
         }
     }
-    
+
     val buildPluginBlockmap by registering {
         inputs.file(buildPlugin.get().archiveFile)
         doLast {
@@ -372,12 +384,12 @@ artifactory {
         defaults(delegateClosureOf<GroovyObject> {
             setProperty(
                 "properties", mapOf(
-                "vcs.revision" to System.getenv("BUILD_SOURCEVERSION"),
-                "vcs.branch" to (System.getenv("SYSTEM_PULLREQUEST_TARGETBRANCH")
-                    ?: System.getenv("BUILD_SOURCEBRANCHNAME")),
-                "build.name" to "sonarlint-intellij",
-                "build.number" to System.getenv("BUILD_BUILDID")
-            )
+                    "vcs.revision" to System.getenv("BUILD_SOURCEVERSION"),
+                    "vcs.branch" to (System.getenv("SYSTEM_PULLREQUEST_TARGETBRANCH")
+                        ?: System.getenv("BUILD_SOURCEBRANCHNAME")),
+                    "build.name" to "sonarlint-intellij",
+                    "build.number" to System.getenv("BUILD_BUILDID")
+                )
             )
             invokeMethod("publishConfigs", "archives")
             setProperty("publishPom", true) // Publish generated POM files to Artifactory (true by default)
