@@ -274,6 +274,15 @@
             <add-to-group group-id="Vcs.Log.ChangesBrowser.Toolbar"/>
         </action>
 
+        <action id="SonarLint.AnalyzeVcsChanges"
+                class="org.sonarlint.intellij.actions.SonarAnalyzeVcsChangesAction"
+                text="Analyze with SonarLint"
+                description="Run SonarLint analysis on selected commit(s)"
+                icon="SonarLintIcons.SONARLINT_ACTION">
+            <add-to-group group-id="Git.Log.ContextMenu"/>
+            <add-to-group group-id="Git.Log.Toolbar"/>
+        </action>
+
         <group id="SonarLint.ProjectViewPopupMenu" searchable="false" text="SonarLint" popup="true" icon="SonarLintIcons.SONARLINT_ACTION">
             <reference ref="SonarLint.AnalyzeFiles"/>
             <action id="SonarLint.Exclude"
